@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 
-from .backend import EmailOrUsernameBackend as Backend
-from .serializers import UserSerializer
+# from .backend import EmailOrUsernameBackend as Backend
+from .serializers import UserSerializer, UserReadSerializer
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -38,7 +38,7 @@ class CustomLoginView(APIView):
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
-            user_data = UserSerializer(user).data
+            user_data = UserReadSerializer(user).data
 
             return Response({
                 'refresh': str(refresh),
@@ -50,7 +50,7 @@ class CustomLoginView(APIView):
 
 
 class UserDetailView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserReadSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):

@@ -7,6 +7,15 @@ import re
 User = get_user_model()
 
 
+class UserReadSerializer(serializers.ModelSerializer):
+    """
+    Serializer for reading user data, exposing only safe fields.
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', 'get_full_name', 'role']
+
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=8)
 
@@ -36,6 +45,8 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already registered.")
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', value):
+            raise serializers.ValidationError("Invalid email address.")
         return value
 
     def validate_username(self, value):
@@ -47,11 +58,10 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Username can only contain letters, numbers, and underscores.")
         return value
 
-    def validate(self, data):
-        if data.get('role') not in ['job_seeker', 'company']:
-            raise serializers.ValidationError({'role': 'Invalid role selected.'})
-
-        return data
+    def validate_role(self, value):
+        if value not in ['job_seeker', 'company']:
+            raise serializers.ValidationError('Invalid role selected.')
+        return value
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -59,7 +69,6 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
 
-        # Create associated profile based on role
         if user.role == 'job_seeker':
             SeekerProfile.objects.create(user=user)
         elif user.role == 'company':
