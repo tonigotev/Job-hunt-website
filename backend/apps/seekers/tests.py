@@ -9,7 +9,6 @@ User = get_user_model()
 
 class SeekersTests(APITestCase):
     def setUp(self):
-        # Create users
         self.seeker_user_1 = User.objects.create_user(
             username="seeker1",
             password="Password123",
