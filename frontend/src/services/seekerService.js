@@ -6,7 +6,7 @@ import { axiosInstance } from "./_axiosInstance";
 // --------------------
 
 const fetchJobs = async () => {
-   const response = await axiosInstance.get("jobs/");
+   const response = await axiosInstance.get("jobs/postings/");
    return response.data;
 };
 
@@ -82,7 +82,7 @@ const applyJob = async (data) => {
 
 const fetchFilteredJobs = async (params) => {
    console.log("requesting...");
-   const response = await axiosInstance.get("jobs/", {
+   const response = await axiosInstance.get("jobs/postings/", {
       params: { ...params },
    });
    return response.data;

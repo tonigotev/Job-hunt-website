@@ -12,8 +12,10 @@ from rest_framework.views import APIView
 
 from accounts.serializers import UserSerializer
 from admins.permissions import IsAdmin
-from companies.models import Company, Job, Application
-from companies.serializers import CompanySerializer, JobSerializer, ApplicationSerializer
+from companies.models import Company
+from jobs.models import Job, Application
+from companies.serializers import CompanySerializer
+from jobs.serializers import JobReadSerializer, ApplicationReadSerializer
 
 User = get_user_model()
 
@@ -72,7 +74,7 @@ class ApproveCompany(APIView):
 
 class AllJobsListView(ListAPIView):
     queryset = Job.objects.all()
-    serializer_class = JobSerializer
+    serializer_class = JobReadSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     pagination_class = CustomPagination
     filter_backends = [SearchFilter, DjangoFilterBackend]
@@ -81,6 +83,6 @@ class AllJobsListView(ListAPIView):
 
 class AllApplicationListView(ListAPIView):
     queryset = Application.objects.all()
-    serializer_class = ApplicationSerializer
+    serializer_class = ApplicationReadSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     pagination_class = CustomPagination

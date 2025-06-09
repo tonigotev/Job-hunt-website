@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 
-# from .backend import EmailOrUsernameBackend as Backend
+from .backend import EmailOrUsernameBackend as Backend
 from .serializers import UserSerializer, UserReadSerializer
 
 logger = logging.getLogger(__name__)

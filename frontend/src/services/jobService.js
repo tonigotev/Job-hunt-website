@@ -6,34 +6,36 @@ import { axiosInstance } from "./_axiosInstance";
 // --------------------
 
 const createJob = async (jobData) => {
-   const response = await axiosInstance.post("jobs/", jobData);
+   const response = await axiosInstance.post("jobs/postings/", jobData);
    return response.data;
 };
 
 const fetchJobsByCompany = async () => {
-   const response = await axiosInstance.get("jobs/my-jobs/");
+   const response = await axiosInstance.get("jobs/postings/my-jobs/");
    return response.data;
 };
 
 const fetchJob = async (jobId) => {
-   const response = await axiosInstance.get(`jobs/${jobId}/`);
+   const response = await axiosInstance.get(`jobs/postings/${jobId}/`);
    return response.data;
 };
 
 const updateJob = async ({ jobId, jobData }) => {
    const response = await axiosInstance.patch(
-      `jobs/${jobId}/`,
+      `jobs/postings/${jobId}/`,
       jobData
    );
    return response.data;
 };
 
 const fetchFilteredApplications = async ({jobId, status}) => {
+   const params = { job: jobId };
+   if (status && status !== 'all') {
+      params.status = status;
+   }
    const response = await axiosInstance.get(
       `jobs/applications/`,
-      {
-         params: { job: jobId, status },
-      }
+      { params }
    );
    return response.data;
 };

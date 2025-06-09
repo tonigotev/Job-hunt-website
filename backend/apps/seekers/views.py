@@ -1,46 +1,42 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions, generics
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from seekers import serializers
 from seekers.models import SeekerProfile, Experience, Resume
-from seekers.permissions import IsAdminOrOwner
-from .permissions import IsAdminOrOwner
+from core.permissions import IsOwnerOrReadOnly
 
 
 class SeekerProfileViewSet(viewsets.ModelViewSet):
     queryset = SeekerProfile.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrOwner]
-    # based on the action, we will return the appropriate serializer so we don't expose all fields
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
     def get_serializer_class(self):
         if self.action in ['retrieve', 'list'] or (self.action == 'my_profile' and self.request.method == 'GET'):
             return serializers.SeekerProfileReadSerializer
         return serializers.SeekerProfileSerializer
 
-    @action(detail=False, methods=['GET', 'PATCH'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['GET', 'PATCH'], permission_classes=[permissions.IsAuthenticated], url_path='my-profile')
     def my_profile(self, request):
-        obj, created = SeekerProfile.objects.get_or_create(user=request.user)
-
+        profile = get_object_or_404(SeekerProfile, user=request.user)
         if request.method == 'GET':
-            serializer = self.get_serializer(obj)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        elif request.method == 'PATCH':
-            serializer = self.get_serializer(obj, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = serializers.SeekerProfileReadSerializer(profile)
+            return Response(serializer.data)
+        
+        serializer = serializers.SeekerProfileSerializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class ResumeViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAdminOrOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    queryset = Resume.objects.all()
 
     def get_queryset(self):
-        return Resume.objects.filter(seeker__user=self.request.user).order_by('-id')
-    
+        return Resume.objects.filter(seeker__user=self.request.user)
+
     def get_serializer_class(self):
         if self.action in ['retrieve', 'list']:
             return serializers.ResumeReadSerializer
@@ -48,10 +44,11 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
 
 class ExperienceViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsAdminOrOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    queryset = Experience.objects.all()
 
     def get_queryset(self):
-        return Experience.objects.filter(seeker__user=self.request.user).order_by('-id')
+        return Experience.objects.filter(seeker__user=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ['retrieve', 'list']:

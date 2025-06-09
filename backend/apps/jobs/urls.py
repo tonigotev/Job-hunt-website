@@ -5,7 +5,7 @@ from . import views
 app_name = 'jobs'
 
 router = DefaultRouter()
-router.register(r'', views.JobViewSet, basename='job')
+router.register(r'postings', views.JobViewSet, basename='job')
 router.register(r'applications', views.ApplicationViewSet, basename='application')
 
 urlpatterns = [

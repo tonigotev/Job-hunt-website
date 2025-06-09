@@ -1,0 +1,45 @@
+services:
+  postgres:
+    container_name: postgres_db
+    image: postgres:15
+    env_file:
+      - ./.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5432:5432"
+
+  backend:
+    container_name: backend_django
+    build:
+      context: ./backend
+      dockerfile: ../docker/django/Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+    volumes:
+      - media_data:/vol/media
+    restart: always
+    depends_on:
+      - postgres
+
+  proxy:
+    container_name: nginx
+    build:
+      context: ./frontend
+      dockerfile: ../docker/react/Dockerfile
+    volumes:
+      - ./backend/staticfiles:/vol/staticfiles
+      - media_data:/vol/media
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+
+volumes:
+  media_data:
+  postgres_data:

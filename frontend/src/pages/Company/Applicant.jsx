@@ -24,7 +24,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
    };
 
    const handleUpdate = () => {
-      mutate({ id: application.id, data: { status: newStatus } });
+      mutate({ applicationId: application.id, data: { status: newStatus } });
    };
 
    return (
