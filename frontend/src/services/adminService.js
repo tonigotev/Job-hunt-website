@@ -6,38 +6,38 @@ import { axiosInstance } from "./_axiosInstance";
 // --------------------
 
 const fetchJobSeekers = async ({ page = 1 }) => {
-   const response = await axiosInstance.get("admin/job-seekers/", {
+   const response = await axiosInstance.get("admins/job-seekers/", {
       params: { page },
    });
    return response.data;
 };
 
 const fetchCompanies = async () => {
-   const response = await axiosInstance.get("admin/companies/");
+   const response = await axiosInstance.get("admins/companies/");
    return response.data;
 };
 
 const fetchCounts = async () => {
-   const response = await axiosInstance.get("admin/dashboard/");
+   const response = await axiosInstance.get("admins/dashboard/");
    return response.data;
 };
 
 const updateCompanyStatus = async (data) => {
-   const response = await axiosInstance.patch("admin/company-approval/", {
+   const response = await axiosInstance.patch("admins/company-approval/", {
       ...data,
    });
    return response.data;
 };
 
 const fetchJobs = async (page, selectedCompany) => {
-   const response = await axiosInstance.get("admin/jobs/", {
+   const response = await axiosInstance.get("admins/jobs/", {
       params: { page, company__title: selectedCompany },
    });
    return response.data;
 };
 
 const fetchApplications = async (page) => {
-   const response = await axiosInstance.get("admin/applications/", {
+   const response = await axiosInstance.get("admins/applications/", {
       params: { page },
    });
    return response.data;

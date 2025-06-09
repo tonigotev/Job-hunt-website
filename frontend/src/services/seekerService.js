@@ -6,18 +6,18 @@ import { axiosInstance } from "./_axiosInstance";
 // --------------------
 
 const fetchJobs = async () => {
-   const response = await axiosInstance.get("company/jobs/");
+   const response = await axiosInstance.get("jobs/");
    return response.data;
 };
 
 const fetchProfile = async () => {
-   const response = await axiosInstance.get("seeker/profile/my_profile/");
+   const response = await axiosInstance.get("seekers/profiles/my-profile/");
    return response.data;
 };
 
 const updateProfile = async (data) => {
    const response = await axiosInstance.patch(
-      "seeker/profile/my_profile/",
+      "seekers/profiles/my-profile/",
       data,
       {
          headers: {
@@ -29,12 +29,12 @@ const updateProfile = async (data) => {
 };
 
 const fetchResumes = async () => {
-   const response = await axiosInstance.get("seeker/resume/");
+   const response = await axiosInstance.get("seekers/resumes/");
    return response.data;
 };
 
 const createResume = async (data) => {
-   const response = await axiosInstance.post("seeker/resume/", data, {
+   const response = await axiosInstance.post("seekers/resumes/", data, {
       headers: {
          "Content-Type": "multipart/form-data",
       },
@@ -43,46 +43,46 @@ const createResume = async (data) => {
 };
 
 const deleteResume = async (id) => {
-   const response = await axiosInstance.delete(`seeker/resume/${id}/`);
+   const response = await axiosInstance.delete(`seekers/resumes/${id}/`);
    return response.data;
 };
 
 const fetchExperiences = async () => {
-   const response = await axiosInstance.get("seeker/experience");
+   const response = await axiosInstance.get("seekers/experiences/");
    return response.data;
 };
 
 const createExperience = async (data) => {
-   const response = await axiosInstance.post("seeker/experience/", data);
+   const response = await axiosInstance.post("seekers/experiences/", data);
    return response.data;
 };
 
 const deleteExperience = async (id) => {
-   const response = await axiosInstance.delete(`seeker/experience/${id}/`);
+   const response = await axiosInstance.delete(`seekers/experiences/${id}/`);
    return response.data;
 };
 
 const updateExperience = async (data) => {
    const response = await axiosInstance.patch(
-      `seeker/experience/${data.id}/`,
+      `seekers/experiences/${data.id}/`,
       data
    );
    return response.data;
 };
 
 const fetchApplications = async () => {
-   const response = await axiosInstance.get("company/applications/");
+   const response = await axiosInstance.get("jobs/applications/");
    return response.data;
 };
 
 const applyJob = async (data) => {
-   const response = await axiosInstance.post(`company/applications/`, data);
+   const response = await axiosInstance.post(`jobs/applications/`, data);
    return response.data;
 };
 
 const fetchFilteredJobs = async (params) => {
    console.log("requesting...");
-   const response = await axiosInstance.get("company/jobs/", {
+   const response = await axiosInstance.get("jobs/", {
       params: { ...params },
    });
    return response.data;

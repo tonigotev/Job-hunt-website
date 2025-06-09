@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaWindowClose } from "react-icons/fa";
 import { MdOpenInNew } from "react-icons/md";
-import { useUpdateApplicationMutation } from "../../services/companyService";
+import { useUpdateApplicationMutation } from "../../services/jobService";
 
 const Applicant = ({ application, setApplication, jobID }) => {
    const [status, setStatus] = useState(application.status);

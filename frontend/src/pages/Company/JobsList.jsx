@@ -1,12 +1,12 @@
 import React from "react";
 import { PiSuitcaseSimpleDuotone } from "react-icons/pi";
-import { useFetchJobsbyCompanyQuery } from "../../services/companyService";
+import { useFetchJobsByCompanyQuery } from "../../services/jobService";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Link } from "react-router-dom";
 
 const JobsList = () => {
-   const { data, isLoading, error } = useFetchJobsbyCompanyQuery();
+   const { data, isLoading, error } = useFetchJobsByCompanyQuery();
 
    if (error) {
       console.log(error);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useFilteredApplicationsQuery } from "../../services/companyService";
+import { useFilteredApplicationsQuery } from "../../services/jobService";
 import { useParams } from "react-router-dom";
 import Applicant from "./Applicant";
 import ApplicantSkeleton from "../../components/company/skeletons/ApplicantSkeleton";

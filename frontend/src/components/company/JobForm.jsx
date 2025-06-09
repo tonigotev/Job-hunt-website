@@ -4,7 +4,7 @@ import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
 import { JobFormValidationSchema } from "../../utils/validationSchemas";
 import { IoCloseSharp } from "react-icons/io5";
-import { useCreateJobMutation } from "../../services/companyService";
+import { useCreateJobMutation } from "../../services/jobService";
 
 const initialValues = {
    title: "",

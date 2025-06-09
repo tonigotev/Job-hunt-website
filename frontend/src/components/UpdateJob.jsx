@@ -3,9 +3,12 @@ import InputField from "./InputField";
 import SubmitButton from "./SubmitButton";
 import { JobFormValidationSchema } from "../utils/validationSchemas";
 import { IoCloseSharp } from "react-icons/io5";
-import { useUpdateJobMutation } from "../services/companyService";
+import { useUpdateJobMutation } from "../services/jobService";
+import { useFetchJobQuery } from "../services/jobService";
+import { useParams } from "react-router-dom";
 
 const UpdateJob = ({ jobDetails, toggle }) => {
+   const { jobId } = useParams();
    const updateJobMutation = useUpdateJobMutation();
 
    const initialValues = {

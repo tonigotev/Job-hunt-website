@@ -3,6 +3,9 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import status
 
 from . import serializers
 from .models import Job, Application
@@ -40,6 +43,18 @@ class JobViewSet(viewsets.ModelViewSet):
             return Job.objects.all()
 
         return Job.objects.none()
+
+    @action(detail=False, methods=['GET'], url_path='my-jobs')
+    def my_jobs(self, request):
+        """
+        Retrieve all jobs for the currently authenticated company user.
+        """
+        if request.user.role != 'company':
+            return Response({"detail": "You are not authorized to view this page."}, status=status.HTTP_403_FORBIDDEN)
+        
+        company_jobs = self.get_queryset()
+        serializer = self.get_serializer(company_jobs, many=True)
+        return Response(serializer.data)
 
 class ApplicationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsAdminOrApplicationOwnerOrCompany]
