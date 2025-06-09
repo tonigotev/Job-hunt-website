@@ -8,7 +8,7 @@ const { useUser, useLogin, useRegister, useLogout } = configureAuth({
       const token = localStorage.getItem("access_token");
       if (!token) throw new Error("No access token found");
 
-      const response = await axiosInstance.get("/auth/user/", {
+      const response = await axiosInstance.get("/auth/me/", {
          headers: {
             Authorization: `Bearer ${token}`,
          },
@@ -49,7 +49,7 @@ const { useUser, useLogin, useRegister, useLogout } = configureAuth({
    registerFn: async (credentials) => {
       try {
          const { data } = await axiosInstance.post(
-            "/auth/register/",
+            "/auth/signup/",
             credentials
          );
          return { status: "success", data };
@@ -81,7 +81,7 @@ const { useUser, useLogin, useRegister, useLogout } = configureAuth({
 });
 
 const getUser = async () => {
-   const response = await axiosInstance.get("auth/user/");
+   const response = await axiosInstance.get("auth/me/");
    return response.data;
 };
 
@@ -94,7 +94,7 @@ const useGetUserQuery = () => {
 };
 
 const updateUser = async (userData) => {
-   const response = await axiosInstance.patch("auth/user/update/", userData);
+   const response = await axiosInstance.patch("auth/me/update/", userData);
    return response.data;
 };
 
