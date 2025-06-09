@@ -1,0 +1,50 @@
+from rest_framework.permissions import BasePermission
+from .models import Company
+
+
+class IsAdminOrCompanyOwner(BasePermission):
+    """
+    Allows access only to admin users or to the user who owns the company profile.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Admins have full access.
+        if request.user.is_staff or request.user.role == 'admin':
+            return True
+        
+        # The user associated with the company object must be the request user.
+        # This works because the Company model has a OneToOneField to the user.
+        return obj.user == request.user
+
+
+class IsCompanyOrAdmin(BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ['retrieve', 'list']:
+            return True
+
+        if view.action in ['create', 'update', 'partial_update']:
+            return request.user.role in ['admin', 'company']
+
+        return False
+
+
+class IsCompany(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == "company"
+
+
+class RoleBasedPermission(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+
+        if user.role == 'admin':
+            return True
+
+        if user.role == 'company':
+            if view.action in ['retrieve', 'list', 'partial_update']:
+                return True
+
+        if user.role == 'job_seeker':
+            if view.action in ['create', 'destroy', 'retrieve', 'list']:
+                return True
+
+        return False
