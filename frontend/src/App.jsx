@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+// import Home from "./pages/Home";
+import NavBar from "./components/NavBar";
+import Register from "./pages/Register";
+import LoginForm from "./pages/Login";
+import AdminRoutes from "./routes/AdminRoutes";
+import CompanyRoutes from "./routes/CompanyRoutes";
+import JobSeekerRoutes from "./routes/JobSeekerRoutes";
+import JobDetails from "./pages/JobDetails";
+import Home from "./pages/JobSeeker/Home";
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+   return (
+      <AuthProvider>
+         <BrowserRouter>
+            <ConditionalNavBar>
+               <Routes>
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/login" element={<LoginForm />} />
+                  {/* <Route path="/" element={<Home />} /> */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="admin/*" element={<AdminRoutes />} />
+                  <Route path="company/*" element={<CompanyRoutes />} />
+                  <Route path="job_seeker/*" element={<JobSeekerRoutes />} />
+                  <Route path="/job/:jobId" element={<JobDetails />} />
+               </Routes>
+            </ConditionalNavBar>
+         </BrowserRouter>
+      </AuthProvider>
+   );
 }
 
-export default App
+function ConditionalNavBar({ children }) {
+   const location = useLocation();
+   const hideNavBarRoutes = ["/register", "/login"];
+
+   return (
+      <>
+         {!hideNavBarRoutes.includes(location.pathname) && <NavBar />}
+         {children}
+      </>
+   );
+}
+
+export default App;
