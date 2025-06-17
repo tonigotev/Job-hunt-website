@@ -16,6 +16,25 @@ const Applicant = ({ application, setApplication, jobId }) => {
       mutate({ applicationId: application.id, data: { status } });
    };
 
+   const calculateDuration = (start, end) => {
+      const startDate = new Date(start);
+      const endDate = end ? new Date(end) : new Date();
+      let totalMonths =
+         (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+         (endDate.getMonth() - startDate.getMonth());
+
+      if (totalMonths < 0) return "";
+
+      const years = Math.floor(totalMonths / 12);
+      const months = totalMonths % 12;
+
+      const parts = [];
+      if (years) parts.push(`${years} ${years === 1 ? "year" : "years"}`);
+      if (months) parts.push(`${months} ${months === 1 ? "month" : "months"}`);
+
+      return parts.join(" ");
+   };
+
    return (
       <div className="shadow-lg bg-gray-200 px-5 lg:px-12 xl:px-20 py-5 text-gray-700 relative">
          <div className="flex justify-between">
@@ -34,6 +53,25 @@ const Applicant = ({ application, setApplication, jobId }) => {
                      Open resume <MdOpenInNew className="ml-1" />
                   </a>
                </div>
+
+               {application.experience && (
+                  <>
+                     <p className="mt-4 font-medium">Experience:</p>
+                     <p className="text-gray-700 bg-gray-100 p-2">
+                        {application.experience.job_title} at {application.experience.company}
+                        {"  ("}
+                        {calculateDuration(
+                           application.experience.start_date,
+                           application.experience.end_date
+                        )}
+                        {
+                           application.experience.is_current
+                              ? " – present)"
+                              : ")"
+                        }
+                     </p>
+                  </>
+               )}
 
                <p className="mt-4 font-medium">Cover Letter:</p>
                <p className="text-gray-700 text-justify bg-gray-100 p-2">

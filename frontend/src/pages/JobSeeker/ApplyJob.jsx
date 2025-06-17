@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useCreateApplicationMutation, useFetchResumesQuery } from "../../services/seekerService";
+import { useCreateApplicationMutation, useFetchResumesQuery, useFetchExperiencesQuery } from "../../services/seekerService";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const ApplyJob = ({ setIsApplying, jobId }) => {
    const { mutate } = useCreateApplicationMutation();
    const { data: resumes = [] } = useFetchResumesQuery();
+   const { data: experiences = [] } = useFetchExperiencesQuery();
    const navigate = useNavigate();
    const [errorMessage, setErrorMessage] = useState("");
 
@@ -15,6 +16,7 @@ const ApplyJob = ({ setIsApplying, jobId }) => {
          job: jobId,
          cover_letter: values.cover_letter,
          resume_id: values.resume_id,
+         experience_id: values.experience_id,
       };
 
       mutate(payload, {
@@ -42,6 +44,7 @@ const ApplyJob = ({ setIsApplying, jobId }) => {
          initialValues={{
             resume_id: "",
             cover_letter: "",
+            experience_id: "",
          }}
          onSubmit={handleSubmit}
       >
@@ -78,6 +81,31 @@ const ApplyJob = ({ setIsApplying, jobId }) => {
                            className="text-red-500 text-sm mt-1"
                         />
                      </div>
+                  </div>
+
+                  {/* Experience selection */}
+                  <div className="border rounded-md border-blue-200 px-3 mt-4">
+                     <p className="text-center font-bold text-gray-600 p-3">
+                        Select Experience
+                     </p>
+                     <hr />
+                     <Field
+                        as="select"
+                        name="experience_id"
+                        className="w-full my-2 text-sm p-2.5 text-gray-800 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                     >
+                        <option value="">-- Choose experience --</option>
+                        {experiences.map((exp) => (
+                           <option key={exp.id} value={exp.id}>
+                              {exp.job_title} at {exp.company}
+                           </option>
+                        ))}
+                     </Field>
+                     <ErrorMessage
+                        name="experience_id"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                     />
                   </div>
 
                   {/* Cover Letter */}
