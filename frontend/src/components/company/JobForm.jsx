@@ -4,7 +4,7 @@ import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
 import { JobFormValidationSchema } from "../../utils/validationSchemas";
 import { IoCloseSharp } from "react-icons/io5";
-import { useCreateJobMutation } from "../../services/companyService";
+import { useCreateJobMutation } from "../../services/jobService";
 
 const initialValues = {
    title: "",
@@ -115,6 +115,9 @@ const JobForm = ({ onClick }) => {
                               : "border-gray-300"
                         }`}
                      >
+                        <option value="" disabled>
+                           -- Select role --
+                        </option>
                         <option value="Full-time">Full time</option>
                         <option value="Part-time">Part time</option>
                         <option value="Contract">Contract</option>

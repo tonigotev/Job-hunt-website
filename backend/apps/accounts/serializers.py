@@ -13,7 +13,7 @@ class UserReadSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'get_full_name', 'role']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'get_full_name', 'role']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -43,6 +43,8 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
+        if self.instance and self.instance.email == value:
+            return value
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already registered.")
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', value):
@@ -50,6 +52,8 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def validate_username(self, value):
+        if self.instance and self.instance.username == value:
+            return value
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("This username is already taken.")
         if len(value) < 3:
@@ -62,6 +66,17 @@ class UserSerializer(serializers.ModelSerializer):
         if value not in ['job_seeker', 'company']:
             raise serializers.ValidationError('Invalid role selected.')
         return value
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         password = validated_data.pop('password')

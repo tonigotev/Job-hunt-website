@@ -1,31 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useFilteredApplicationsQuery } from "../../services/companyService";
+import {
+   useFilteredApplicationsQuery,
+   useFetchJobQuery,
+} from "../../services/jobService";
 import { useParams } from "react-router-dom";
 import Applicant from "./Applicant";
 import ApplicantSkeleton from "../../components/company/skeletons/ApplicantSkeleton";
 
-const ApplicantsList = () => {
-   const { jobID } = useParams();
-   const [application, setApplication] = useState();
+const Applications = () => {
+   const { jobId } = useParams();
+   const [application, setApplication] = useState(null);
    const [showDropdown, setShowDropdown] = useState(false);
    const [filterStatus, setFilterStatus] = useState("all");
-   const { data, isLoading, error } = useFilteredApplicationsQuery(
-      jobID,
-      filterStatus
-   );
 
-   if (error) return <p>Error: {error.message}</p>;
+   const {
+      data: applications,
+      isLoading: isLoadingApplications,
+      error: applicationsError,
+   } = useFilteredApplicationsQuery(jobId, filterStatus);
+
+   const {
+      data: job,
+      isLoading: isLoadingJob,
+      error: jobError,
+   } = useFetchJobQuery(jobId);
+
+   useEffect(() => {
+      console.log("Applications State Change:");
+      console.log("jobId:", jobId);
+      console.log("isLoadingApplications:", isLoadingApplications);
+      console.log("applicationsError:", applicationsError);
+      console.log("applications:", applications);
+      console.log("isLoadingJob:", isLoadingJob);
+      console.log("jobError:", jobError);
+      console.log("job:", job);
+   }, [
+      jobId,
+      applications,
+      isLoadingApplications,
+      applicationsError,
+      job,
+      isLoadingJob,
+      jobError,
+   ]);
+
+   if (applicationsError) return <p>Error: {applicationsError.message}</p>;
+   if (jobError) return <p>Error: {jobError.message}</p>;
 
    const formattedDate = (appliedAt) => {
       const date = new Date(appliedAt);
       const day = date.getUTCDate();
       const month = date.toLocaleString("en-US", { month: "short" });
       const year = date.getUTCFullYear();
-      const formattedDate = `${day} ${month} ${year}`;
-
-      return formattedDate;
+      return `${day} ${month} ${year}`;
    };
 
    const handleFilter = (status) => {
@@ -37,7 +66,11 @@ const ApplicantsList = () => {
       <div className="p-6 min-h-screen">
          <div className="lg:w-3/5 xl:w-2/5 mx-auto overflow-x-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-               Applications List
+               {isLoadingJob ? (
+                  <Skeleton width={300} />
+               ) : (
+                  `Applications for ${job?.title}`
+               )}
             </h1>
 
             <table className="w-full text-sm text-left text-gray-500 mt-10">
@@ -52,55 +85,57 @@ const ApplicantsList = () => {
                      <th scope="col" className="px-6 py-3 text-center">
                         Application Date
                      </th>
-                     <div className="flex justify-center items-center py-3">
-                        <p className="font-bold">Status</p>
-                        <div className="relative">
-                           <button
-                              className="text-gray-600 hover:bg-gray-200 pl-1 pr-2"
-                              id="filterButton"
-                              onClick={() => setShowDropdown(!showDropdown)}
-                           >
-                              ▼
-                           </button>
-                           {showDropdown && (
-                              <div className="absolute capitalize right-0 mt-2 w-24 bg-white border border-gray-300 shadow-md z-10 rounded-sm">
-                                 <ul className="py-1 text-sm text-gray-700">
-                                    <li
-                                       className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
-                                       onClick={() => handleFilter("all")}
-                                    >
-                                       All
-                                    </li>
-                                    <li
-                                       className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
-                                       onClick={() => handleFilter("accepted")}
-                                    >
-                                       Accepted
-                                    </li>
-                                    <li
-                                       className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
-                                       onClick={() => handleFilter("rejected")}
-                                    >
-                                       Rejected
-                                    </li>
-                                    <li
-                                       className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
-                                       onClick={() => handleFilter("pending")}
-                                    >
-                                       Pending
-                                    </li>
-                                 </ul>
-                              </div>
-                           )}
+                     <th scope="col" className="px-6 py-3 text-center">
+                        <div className="flex justify-center items-center">
+                           <p className="font-bold">Status</p>
+                           <div className="relative">
+                              <button
+                                 className="text-gray-600 hover:bg-gray-200 pl-1 pr-2"
+                                 id="filterButton"
+                                 onClick={() => setShowDropdown(!showDropdown)}
+                              >
+                                 ▼
+                              </button>
+                              {showDropdown && (
+                                 <div className="absolute capitalize right-0 mt-2 w-24 bg-white border border-gray-300 shadow-md z-10 rounded-sm">
+                                    <ul className="py-1 text-sm text-gray-700">
+                                       <li
+                                          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
+                                          onClick={() => handleFilter("all")}
+                                       >
+                                          All
+                                       </li>
+                                       <li
+                                          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
+                                          onClick={() => handleFilter("accepted")}
+                                       >
+                                          Accepted
+                                       </li>
+                                       <li
+                                          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
+                                          onClick={() => handleFilter("rejected")}
+                                       >
+                                          Rejected
+                                       </li>
+                                       <li
+                                          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer tracking-wider"
+                                          onClick={() => handleFilter("pending")}
+                                       >
+                                          Pending
+                                       </li>
+                                    </ul>
+                                 </div>
+                              )}
+                           </div>
                         </div>
-                     </div>
+                     </th>
                      <th scope="col" className="px-6 py-3 text-center">
                         Action
                      </th>
                   </tr>
                </thead>
                <tbody>
-                  {isLoading ? (
+                  {isLoadingApplications ? (
                      <>
                         {[...Array(5)].map((_, index) => (
                            <tr key={index} className="bg-white border-b">
@@ -114,7 +149,7 @@ const ApplicantsList = () => {
                            </tr>
                         ))}
                      </>
-                  ) : data.length === 0 ? (
+                  ) : applications?.length === 0 ? (
                      <tr className="bg-white border-b">
                         <td
                            className="px-6 py-4 text-center text-amber-500 font-semibold tracking-widest"
@@ -124,7 +159,7 @@ const ApplicantsList = () => {
                         </td>
                      </tr>
                   ) : (
-                     data.map((application, index) => (
+                     applications?.map((application, index) => (
                         <tr key={application.id} className="bg-white border-b">
                            <th
                               scope="row"
@@ -174,18 +209,16 @@ const ApplicantsList = () => {
                </tbody>
             </table>
 
-            {application ? (
+            {application && (
                <Applicant
                   application={application}
                   setApplication={setApplication}
-                  jobID={jobID}
+                  jobId={jobId}
                />
-            ) : (
-               <ApplicantSkeleton />
             )}
          </div>
       </div>
    );
 };
 
-export default ApplicantsList;
+export default Applications;

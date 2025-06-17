@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useFetchJobQuery } from "../services/companyService";
+import { useFetchJobQuery } from "../services/jobService";
 import { useGetUserQuery } from "../services/authService";
 import UpdateJob from "../components/UpdateJob";
 import ApplyJob from "./JobSeeker/ApplyJob";

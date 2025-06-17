@@ -7,11 +7,13 @@ import Companies from "../pages/Admin/Companies";
 import CompanyProfile from "../pages/Admin/CompanyProfile";
 import Jobs from "../pages/Admin/Jobs";
 import Applications from "../pages/Admin/Applications";
+import SeekerProfile from "../pages/Admin/SeekerProfile";
 
 const adminRoutesConfig = [
    { path: "dashboard", element: <AdminDashboard /> },
    { path: "dashboard/update-admin", element: <UpdateUser /> },
    { path: "dashboard/job-seekers", element: <JobSeekers /> },
+   { path: "dashboard/job-seekers/:seekerId/profile", element: <SeekerProfile /> },
    { path: "dashboard/companies", element: <Companies /> },
    { path: "dashboard/companies/:companyName/profile", element: <CompanyProfile /> },
    { path: "dashboard/jobs", element: <Jobs /> },

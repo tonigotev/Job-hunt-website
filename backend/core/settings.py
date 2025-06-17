@@ -29,6 +29,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
+    'djoser',
 ]
 
 LOCAL_APPS = [
@@ -164,4 +165,32 @@ AUTHENTICATION_BACKENDS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:5173",
 ]
+
+# For development, you can use the console backend.
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Email backend configuration for Mailgun using django-anymail
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.environ.get('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": os.environ.get('MAILGUN_SENDER_DOMAIN'),
+}
+
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+
+
+# Djoser configuration
+DJOSER = {
+    "PASSWORD_RESET_CONFIRM_URL": "reset-password?uid={uid}&token={token}",
+    "USERNAME_RESET_CONFIRM_URL": "username/reset/confirm/{uid}/{token}",
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "SEND_ACTIVATION_EMAIL": False,
+    "SERIALIZERS": {},
+    "PERMISSIONS": {
+        "password_reset": ["rest_framework.permissions.AllowAny"],
+        "password_reset_confirm": ["rest_framework.permissions.AllowAny"],
+    },
+}

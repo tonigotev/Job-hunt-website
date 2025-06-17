@@ -1,30 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { FaWindowClose } from "react-icons/fa";
 import { MdOpenInNew } from "react-icons/md";
-import { useUpdateApplicationMutation } from "../../services/companyService";
+import { useUpdateApplicationMutation } from "../../services/jobService";
 
-const Applicant = ({ application, setApplication, jobID }) => {
+const Applicant = ({ application, setApplication, jobId }) => {
    const [status, setStatus] = useState(application.status);
 
-   const prevStatus = application.status;
-   const newStatus = status;
-
-   const { mutate } = useUpdateApplicationMutation(
-      jobID,
-      prevStatus,
-      newStatus
-   );
+   const { mutate } = useUpdateApplicationMutation(jobId);
 
    useEffect(() => {
       setStatus(application.status);
    }, [application]);
 
-   const handleStatusChange = (newStatus) => {
-      setStatus(newStatus);
+   const handleUpdate = () => {
+      mutate({ applicationId: application.id, data: { status } });
    };
 
-   const handleUpdate = () => {
-      mutate({ id: application.id, data: { status: newStatus } });
+   const calculateDuration = (start, end) => {
+      const startDate = new Date(start);
+      const endDate = end ? new Date(end) : new Date();
+      let totalMonths =
+         (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+         (endDate.getMonth() - startDate.getMonth());
+
+      if (totalMonths < 0) return "";
+
+      const years = Math.floor(totalMonths / 12);
+      const months = totalMonths % 12;
+
+      const parts = [];
+      if (years) parts.push(`${years} ${years === 1 ? "year" : "years"}`);
+      if (months) parts.push(`${months} ${months === 1 ? "month" : "months"}`);
+
+      return parts.join(" ");
    };
 
    return (
@@ -37,7 +45,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                <div className="flex font-medium">
                   <p className="mr-3">Resume:</p>
                   <a
-                     href={application.resume}
+                     href={application.resume_url || application.resume?.resume || "#"}
                      target="_blank"
                      className="text-blue-600 hover:underline flex items-center"
                      rel="noopener noreferrer"
@@ -45,6 +53,25 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      Open resume <MdOpenInNew className="ml-1" />
                   </a>
                </div>
+
+               {application.experience && (
+                  <>
+                     <p className="mt-4 font-medium">Experience:</p>
+                     <p className="text-gray-700 bg-gray-100 p-2">
+                        {application.experience.job_title} at {application.experience.company}
+                        {"  ("}
+                        {calculateDuration(
+                           application.experience.start_date,
+                           application.experience.end_date
+                        )}
+                        {
+                           application.experience.is_current
+                              ? " – present)"
+                              : ")"
+                        }
+                     </p>
+                  </>
+               )}
 
                <p className="mt-4 font-medium">Cover Letter:</p>
                <p className="text-gray-700 text-justify bg-gray-100 p-2">
@@ -63,7 +90,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "accepted"}
-                     onChange={() => handleStatusChange("accepted")}
+                     onChange={() => setStatus("accepted")}
                   />
                   <label
                      htmlFor="accepted"
@@ -80,7 +107,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "pending"}
-                     onChange={() => handleStatusChange("pending")}
+                     onChange={() => setStatus("pending")}
                   />
                   <label
                      htmlFor="pending"
@@ -97,7 +124,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "rejected"}
-                     onChange={() => handleStatusChange("rejected")}
+                     onChange={() => setStatus("rejected")}
                   />
                   <label
                      htmlFor="rejected"
@@ -108,9 +135,9 @@ const Applicant = ({ application, setApplication, jobID }) => {
                </div>
                <button
                   onClick={handleUpdate}
-                  className="text-sm px-2 py-1 bg-sky-500 mt-4 text-white rounded-md hover:bg-blue-600"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                >
-                  Update status
+                  Update
                </button>
             </div>
          </div>

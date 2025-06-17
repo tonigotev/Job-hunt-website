@@ -14,7 +14,6 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'my_company' and self.request.method in ['GET', 'PATCH', 'PUT']:
-             # Use the write serializer for updates, read for retrieval
             return serializers.CompanyReadSerializer if self.request.method == 'GET' else serializers.CompanySerializer
         elif self.action in ['retrieve', 'list']:
             return serializers.CompanyReadSerializer
@@ -22,9 +21,6 @@ class CompanyViewSet(viewsets.ModelViewSet):
         
     @action(detail=False, methods=['GET', 'PATCH', 'PUT'], url_path='my-company')
     def my_company(self, request):
-        """
-        Retrieve, update, or partially update the company profile of the request user.
-        """
         try:
             company = Company.objects.get(user=request.user)
         except Company.DoesNotExist:

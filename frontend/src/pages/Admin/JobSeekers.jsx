@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFetchJobSeekersQuery } from "../../services/adminService";
 import LoadMoreButton from "../../components/admin/LoadMoreButton";
 import SeekersSkeleton from "../../components/admin/skeletons/SeekersSkeleton";
+import { Link } from "react-router-dom";
 
 const JobSeekers = () => {
    const [page, setPage] = useState(1);
@@ -70,9 +71,13 @@ const JobSeekers = () => {
                         </td>
                         <td className="px-4 py-2 border-b">{seeker.email}</td>
                         <td className="px-4 py-2 border-b">
-                           <button className="bg-blue-500 text-white px-4 py-1 rounded">
+                           <Link
+                              to={`${seeker.id}/profile`}
+                              state={{ seeker }}
+                              className="bg-blue-500 text-white px-4 py-1 rounded"
+                           >
                               View
-                           </button>
+                           </Link>
                         </td>
                      </tr>
                   ))}

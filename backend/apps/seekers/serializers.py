@@ -14,7 +14,7 @@ class SeekerProfileReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeekerProfile
-        fields = ['user', 'headline', 'bio', 'location', 'phone_number', 'website']
+        fields = ['user', 'bio', 'profile_photo']
 
 
 class SeekerProfileSerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class SeekerProfileSerializer(serializers.ModelSerializer):
 class ResumeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resume
-        fields = ['id', 'title', 'file', 'uploaded_at']
+        fields = ['id', 'resume_title', 'resume', 'date_created']
 
 
 class ResumeSerializer(serializers.ModelSerializer):
@@ -60,7 +60,7 @@ class MonthField(serializers.DateField):
 class ExperienceReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
-        fields = ['id', 'title', 'company', 'location', 'start_date', 'end_date', 'description']
+        fields = ['id', 'job_title', 'company', 'start_date', 'end_date', 'is_current']
 
 
 class ExperienceSerializer(serializers.ModelSerializer):

@@ -1,15 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { PiSuitcaseSimpleDuotone } from "react-icons/pi";
-import { useFetchJobsbyCompanyQuery } from "../../services/companyService";
+import { useFetchJobsByCompanyQuery } from "../../services/jobService";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Link } from "react-router-dom";
 
 const JobsList = () => {
-   const { data, isLoading, error } = useFetchJobsbyCompanyQuery();
+   const { data, isLoading, error } = useFetchJobsByCompanyQuery();
+
+   useEffect(() => {
+      console.log("JobsList State Change:");
+      console.log("isLoading:", isLoading);
+      console.log("error:", error);
+      console.log("data:", data);
+   }, [data, isLoading, error]);
 
    if (error) {
-      console.log(error);
+      console.log("An error occurred:", error);
    }
 
    return (
@@ -56,28 +63,37 @@ const JobsList = () => {
                         </li>
                      </>
                   ) : (
-                     data.map((job) => (
-                        <li
-                           key={job.id}
-                           className="flex items-center justify-between bg-slate-50 mb-2 p-3"
-                        >
-                           <div className="flex items-center">
-                              <PiSuitcaseSimpleDuotone
-                                 size={20}
-                                 className="text-green-500 "
-                              />
-                              <span className="ml-3 text-lg">{job.title}</span>
-                           </div>
-                           <div className="mr-6">
-                              <Link
-                                 to={`applications/${job.id}`}
-                                 className="bg-sky-500 text-white px-2 rounded-md text-sm font-semibold shadow-sm hover:tracking-widest hover:scale-110 ease-in duration-300"
+                     (() => {
+                        console.log("Attempting to render JobsList. Data received:", data);
+                        if (data && Array.isArray(data)) {
+                           data.forEach((job, index) => {
+                              console.log(`Job at index ${index}:`, job);
+                           });
+                           return data.filter(job => job && job.id).map((job) => (
+                              <li
+                                 key={job.id}
+                                 className="flex items-center justify-between bg-slate-50 mb-2 p-3"
                               >
-                                 View
-                              </Link>
-                           </div>
-                        </li>
-                     ))
+                                 <div className="flex items-center">
+                                    <PiSuitcaseSimpleDuotone
+                                       size={20}
+                                       className="text-green-500 "
+                                    />
+                                    <span className="ml-3 text-lg">{job.title}</span>
+                                 </div>
+                                 <div className="mr-6">
+                                    <Link
+                                       to={`applications/${job.id}`}
+                                       className="bg-sky-500 text-white px-2 rounded-md text-sm font-semibold shadow-sm hover:tracking-widest hover:scale-110 ease-in duration-300"
+                                    >
+                                       View
+                                    </Link>
+                                 </div>
+                              </li>
+                           ));
+                        }
+                        return null; // Don't render anything if data is not a valid array
+                     })()
                   )}
                </ul>
             </div>

@@ -1,0 +1,2 @@
+# Ignore the local node_modules directory to prevent it from being copied into the Docker image.
+node_modules 

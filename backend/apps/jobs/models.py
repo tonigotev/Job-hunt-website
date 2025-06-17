@@ -36,6 +36,7 @@ class Application(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     applicant = models.ForeignKey(SeekerProfile, on_delete=models.CASCADE, related_name='job_applications')
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE, related_name='applications')
+    experience = models.ForeignKey('seekers.Experience', on_delete=models.SET_NULL, null=True, blank=True, related_name='applications')
     cover_letter = models.TextField(null=True, blank=True)
     applied_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(

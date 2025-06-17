@@ -9,6 +9,8 @@ import CompanyRoutes from "./routes/CompanyRoutes";
 import JobSeekerRoutes from "./routes/JobSeekerRoutes";
 import JobDetails from "./pages/JobDetails";
 import Home from "./pages/JobSeeker/Home";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
    return (
@@ -18,6 +20,8 @@ function App() {
                <Routes>
                   <Route path="/register" element={<Register />} />
                   <Route path="/login" element={<LoginForm />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   {/* <Route path="/" element={<Home />} /> */}
                   <Route path="/" element={<Home />} />
                   <Route path="admin/*" element={<AdminRoutes />} />
@@ -33,7 +37,7 @@ function App() {
 
 function ConditionalNavBar({ children }) {
    const location = useLocation();
-   const hideNavBarRoutes = ["/register", "/login"];
+   const hideNavBarRoutes = ["/register", "/login", "/forgot-password", "/reset-password"];
 
    return (
       <>

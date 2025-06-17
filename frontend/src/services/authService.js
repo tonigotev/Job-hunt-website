@@ -111,6 +111,21 @@ const useUpdateUserMutation = () => {
    });
 };
 
+const upgradeToCompany = async () => {
+   const response = await axiosInstance.post("auth/me/upgrade-to-company/");
+   return response.data;
+};
+
+const useUpgradeToCompanyMutation = () => {
+   const queryClient = useQueryClient();
+   return useMutation({
+      mutationFn: upgradeToCompany,
+      onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: ["user"] });
+      },
+   });
+};
+
 export {
    useUser,
    useLogin,
@@ -118,4 +133,5 @@ export {
    useLogout,
    useGetUserQuery,
    useUpdateUserMutation,
+   useUpgradeToCompanyMutation,
 };

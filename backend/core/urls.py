@@ -2,13 +2,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('db_admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.jwt')),
     path('api/companies/', include('companies.urls')),
     path('api/admins/', include('admins.urls')),
     path('api/seekers/', include('seekers.urls')),
+    path('api/jobs/', include('jobs.urls')),
 ]
 
 if settings.DEBUG:

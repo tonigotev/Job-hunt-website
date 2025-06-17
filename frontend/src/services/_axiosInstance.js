@@ -2,11 +2,20 @@ import axios from "axios";
 import { QueryClient } from "@tanstack/react-query";
 
 const axiosInstance = axios.create({
-   baseURL: "http://127.0.0.1:8000/api/",
+   baseURL: "/api/",
    headers: {
       "Content-Type": "application/json",
    },
 });
+
+// NEW: Attach the stored access token (if it exists) to every request by default
+// This ensures the user remains authenticated after a page refresh.
+const persistedAccessToken = localStorage.getItem("access_token");
+if (persistedAccessToken) {
+   axiosInstance.defaults.headers.common[
+      "Authorization"
+   ] = `Bearer ${persistedAccessToken}`;
+}
 
 const queryClient = new QueryClient();
 
@@ -32,7 +41,7 @@ axiosInstance.interceptors.response.use(
             console.log("Token Refreshing...");
 
             const response = await axios.post(
-               "http://localhost/api/auth/token/refresh/",
+               "/api/auth/token/refresh/",
                { refresh: refreshToken }
             );
 

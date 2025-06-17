@@ -22,6 +22,9 @@ import { useGetUserQuery } from "../../services/authService";
 import { BiEditAlt } from "react-icons/bi";
 import ProfileImageForm from "../../components/jobSeeker/ProfileImageForm";
 import ProfileBioForm from "../../components/jobSeeker/ProfileBioForm";
+import { useUpgradeToCompanyMutation } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
    const [isAddingResume, setIsAddingResume] = useState(false);
@@ -30,6 +33,7 @@ const Profile = () => {
    const [updationExp, setUpdationExp] = useState();
    const [isAddingPicture, setIsAddingPicture] = useState(false);
    const [isAddingBio, setIsAddingBio] = useState(false);
+   const [upgradeError, setUpgradeError] = useState("");
 
    const { data: user, isLoading: isLoadingUser } = useGetUserQuery();
    const { data: resumes, isLoading: isLoadingResume } = useFetchResumesQuery();
@@ -37,6 +41,26 @@ const Profile = () => {
       useFetchProfileQuery();
    const { data: experiences, isLoading: isLoadingExp } =
       useFetchExperiencesQuery();
+
+   const { updateUser } = useAuth();
+   const navigate = useNavigate();
+   const { mutateAsync: upgradeAccount, isLoading: isUpgrading } =
+      useUpgradeToCompanyMutation();
+
+   const handleUpgrade = async () => {
+      setUpgradeError("");
+      try {
+         await upgradeAccount();
+         // Refetch user data to get the new role
+         const updatedUser = { ...user, role: "company" };
+         updateUser(updatedUser);
+         navigate("/company/profile");
+      } catch (error) {
+         setUpgradeError(
+            error.response?.data?.detail || "An unexpected error occurred."
+         );
+      }
+   };
 
    const toggleAdd = () => {
       setIsAddingResume((prev) => !prev);
@@ -273,6 +297,31 @@ const Profile = () => {
                      </>
                   )}
                </div>
+            </div>
+
+            {/* Upgrade Account Section */}
+            <div className="mt-6 bg-white border border-gray-200 rounded-lg shadow-lg p-6">
+               <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                  Upgrade Your Account
+               </h2>
+               <p className="text-gray-600 mb-4">
+                  Become a company representative to post job openings and find the best
+                  talent. This action is permanent.
+               </p>
+               <button
+                  onClick={handleUpgrade}
+                  disabled={isUpgrading}
+                  className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 disabled:bg-green-300 transition-colors duration-300"
+               >
+                  {isUpgrading
+                     ? "Upgrading..."
+                     : "Upgrade to a Company Account"}
+               </button>
+               {upgradeError && (
+                  <p className="text-red-500 text-sm mt-4 text-center">
+                     {upgradeError}
+                  </p>
+               )}
             </div>
          </div>
       </div>

@@ -1,39 +1,30 @@
 import React, { useState } from "react";
-import ProfileCard from "../../components/company/ProfileCard";
 import JobCard from "../../components/JobCard";
-import {
-   useFetchUserCompanyQuery,
-   useFetchJobsbyCompanyQuery,
-} from "../../services/companyService";
+import { useFetchMyCompanyQuery } from "../../services/companyService";
+import { useFetchJobsByCompanyQuery } from "../../services/jobService";
 import CompanyForm from "../../components/company/CompanyForm";
-import UserCard from "../../components/UserCard";
-import UpdateUserForm from "../../components/company/UpdateUserForm";
 import JobForm from "../../components/company/JobForm";
 import { useGetUserQuery } from "../../services/authService";
+import ProfileCard from "../../components/company/ProfileCard";
+import UserCard from "../../components/UserCard";
+import UpdateUserForm from "../../components/company/UpdateUserForm";
 
 const CompanyProfile = () => {
    const [activeSection, setActiveSection] = useState("jobs");
+   const [isCompanyModalOpen, setCompanyModalOpen] = useState(false);
+   const { data: user } = useGetUserQuery();
 
-   const handleSectionChange = (section) => {
-      setActiveSection(section);
-   };
    const {
       data: companyData,
-      error: companyError,
       isLoading: companyLoading,
-   } = useFetchUserCompanyQuery();
-
-   const {
-      data: userData,
-      error: userError,
-      isLoading: userLoading,
-   } = useGetUserQuery();
+      error: companyError,
+   } = useFetchMyCompanyQuery();
 
    const {
       data: jobsData,
-      error: jobsError,
       isLoading: jobsLoading,
-   } = useFetchJobsbyCompanyQuery();
+      error: jobsError,
+   } = useFetchJobsByCompanyQuery();
 
    const companyDetails = {
       title: companyData?.title || "",
@@ -43,11 +34,13 @@ const CompanyProfile = () => {
       description: companyData?.description || "",
    };
 
-   if (companyLoading || jobsLoading || userLoading)
-      return <div>Loading...</div>;
+   const handleSectionChange = (section) => {
+      setActiveSection(section);
+   };
+
+   if (companyLoading || jobsLoading) return <div>Loading...</div>;
    if (companyError) return <div>Error: {companyError.message}</div>;
    if (jobsError) return <div>Error: {jobsError.message}</div>;
-   if (userError) return <div>Error: {userError.message}</div>;
 
    return (
       <>
@@ -58,7 +51,7 @@ const CompanyProfile = () => {
                onAddJob={() => handleSectionChange("addJob")}
             />
             <UserCard
-               user={userData}
+               user={user}
                onEdit={() => handleSectionChange("updateUser")}
             />
          </div>
@@ -77,7 +70,7 @@ const CompanyProfile = () => {
          )}
          {activeSection === "updateUser" && (
             <UpdateUserForm
-               user={userData}
+               user={user}
                onClick={() => handleSectionChange("jobs")}
             />
          )}
