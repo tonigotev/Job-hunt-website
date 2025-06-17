@@ -221,7 +221,7 @@ const Profile = () => {
                      ) : (
                         <button
                            onClick={toggleAdd}
-                           className="flex items-center border border-blue-600 text-blue-600 text-sm font-semibold py-1 px-4 rounded hover:bg-blue-600 hover:text-white transition-all duration-300"
+                           className="flex items-center border border-blue-600 text-blue-600 text-sm font-semibold py-1 px-3 rounded hover:bg-blue-600 hover:text-white transition-all duration-300"
                         >
                            Add
                            <IoAddCircleOutline className="ml-1" />
@@ -268,7 +268,7 @@ const Profile = () => {
                            onClick={() => {
                               setIsAddingExp(true);
                            }}
-                           className="flex items-center border border-blue-600 text-blue-600 text-sm font-semibold py-1 px-4 rounded hover:bg-blue-600 hover:text-white transition-all duration-300"
+                           className="flex items-center border border-blue-600 text-blue-600 text-sm font-semibold py-1 px-3 rounded hover:bg-blue-600 hover:text-white transition-all duration-300"
                         >
                            Add
                            <IoAddCircleOutline className="ml-1" />
