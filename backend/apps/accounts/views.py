@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 import logging
+from django.apps import apps
 
 from .backend import EmailOrUsernameBackend as Backend
 from .serializers import UserSerializer, UserReadSerializer
@@ -79,3 +80,35 @@ class LogoutView(APIView):
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'detail': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpgradeToCompanyView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if user.role != 'job_seeker':
+            return Response(
+                {"detail": "Only Job Seekers can upgrade to a Company account."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Change user role
+        user.role = 'company'
+        user.save()
+
+        # Safely get the Company model at runtime
+        Company = apps.get_model('companies', 'Company')
+        
+        # Create a basic company profile
+        Company.objects.create(
+            user=user,
+            title=f"{user.username}'s Company",
+            location="Not specified",
+            description="Please update your company description."
+        )
+
+        return Response(
+            {"message": "Account successfully upgraded to Company."},
+            status=status.HTTP_200_OK
+        )

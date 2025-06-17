@@ -3,28 +3,17 @@ import { FaWindowClose } from "react-icons/fa";
 import { MdOpenInNew } from "react-icons/md";
 import { useUpdateApplicationMutation } from "../../services/jobService";
 
-const Applicant = ({ application, setApplication, jobID }) => {
+const Applicant = ({ application, setApplication, jobId }) => {
    const [status, setStatus] = useState(application.status);
 
-   const prevStatus = application.status;
-   const newStatus = status;
-
-   const { mutate } = useUpdateApplicationMutation(
-      jobID,
-      prevStatus,
-      newStatus
-   );
+   const { mutate } = useUpdateApplicationMutation(jobId);
 
    useEffect(() => {
       setStatus(application.status);
    }, [application]);
 
-   const handleStatusChange = (newStatus) => {
-      setStatus(newStatus);
-   };
-
    const handleUpdate = () => {
-      mutate({ applicationId: application.id, data: { status: newStatus } });
+      mutate({ applicationId: application.id, data: { status } });
    };
 
    return (
@@ -37,7 +26,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                <div className="flex font-medium">
                   <p className="mr-3">Resume:</p>
                   <a
-                     href={application.resume}
+                     href={application.resume_url || application.resume?.resume || "#"}
                      target="_blank"
                      className="text-blue-600 hover:underline flex items-center"
                      rel="noopener noreferrer"
@@ -63,7 +52,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "accepted"}
-                     onChange={() => handleStatusChange("accepted")}
+                     onChange={() => setStatus("accepted")}
                   />
                   <label
                      htmlFor="accepted"
@@ -80,7 +69,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "pending"}
-                     onChange={() => handleStatusChange("pending")}
+                     onChange={() => setStatus("pending")}
                   />
                   <label
                      htmlFor="pending"
@@ -97,7 +86,7 @@ const Applicant = ({ application, setApplication, jobID }) => {
                      name="status"
                      className="w-4 h-4 cursor-pointer"
                      checked={status === "rejected"}
-                     onChange={() => handleStatusChange("rejected")}
+                     onChange={() => setStatus("rejected")}
                   />
                   <label
                      htmlFor="rejected"
@@ -108,9 +97,9 @@ const Applicant = ({ application, setApplication, jobID }) => {
                </div>
                <button
                   onClick={handleUpdate}
-                  className="text-sm px-2 py-1 bg-sky-500 mt-4 text-white rounded-md hover:bg-blue-600"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                >
-                  Update status
+                  Update
                </button>
             </div>
          </div>

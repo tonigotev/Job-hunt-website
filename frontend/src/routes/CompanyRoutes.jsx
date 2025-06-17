@@ -4,27 +4,21 @@ import CompanyProfile from "../pages/Company/CompanyProfile";
 import JobsList from "../pages/Company/JobsList";
 import Applications from "../pages/Company/Applications";
 
-const companyRoutesConfig = [
-   { path: "profile", element: <CompanyProfile /> },
-   { path: "jobs", element: <JobsList /> },
-   { path: "jobs/applications/:jobID", element: <Applications /> },
-];
-
 const CompanyRoutes = () => {
    return (
       <Routes>
-         {companyRoutesConfig.map((route, index) => (
-            <Route
-               key={index}
-               path={route.path}
-               element={
-                  <ProtectedRoute
-                     element={route.element}
-                     requiredRole={"company"}
-                  />
-               }
-            />
-         ))}
+         <Route
+            path="profile"
+            element={<ProtectedRoute element={<CompanyProfile />} requiredRole="company" />}
+         />
+         <Route 
+            path="jobs" 
+            element={<ProtectedRoute element={<JobsList />} requiredRole="company" />} 
+         />
+         <Route
+            path="jobs/applications/:jobId"
+            element={<ProtectedRoute element={<Applications />} requiredRole="company" />}
+         />
       </Routes>
    );
 };

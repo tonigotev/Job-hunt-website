@@ -115,6 +115,9 @@ const JobForm = ({ onClick }) => {
                               : "border-gray-300"
                         }`}
                      >
+                        <option value="" disabled>
+                           -- Select role --
+                        </option>
                         <option value="Full-time">Full time</option>
                         <option value="Part-time">Part time</option>
                         <option value="Contract">Contract</option>

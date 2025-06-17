@@ -259,7 +259,7 @@ const useUpdateExperienceMutation = () => {
 
 const useFetchApplicationsQuery = () => {
    return useQuery({
-      queryKey: ["jobApplications"],
+      queryKey: ["applications"],
       queryFn: fetchApplications,
       staleTime: 5 * 60 * 1000,
    });
@@ -271,7 +271,7 @@ const useCreateApplicationMutation = () => {
    return useMutation({
       mutationFn: applyJob,
       onSuccess: () => {
-         queryClient.invalidateQueries(["jobApplications"]);
+         queryClient.invalidateQueries(["applications"]);
       },
       onError: (err) => {
          console.log(err);

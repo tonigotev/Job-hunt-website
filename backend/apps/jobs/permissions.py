@@ -13,11 +13,9 @@ class IsAdminOrApplicationOwnerOrCompany(BasePermission):
             return True
         
         if request.user.role == 'job_seeker':
-            # Seekers can only access their own applications.
             return obj.applicant.user == request.user
 
         if request.user.role == 'company':
-            # Companies can only access applications for jobs they own.
             return obj.job.company.user == request.user
             
         return False

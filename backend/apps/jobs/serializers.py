@@ -2,34 +2,11 @@ from rest_framework import serializers
 from .models import Job, Application
 from companies.serializers import CompanyReadSerializer
 from seekers.serializers import SeekerProfileReadSerializer, ResumeReadSerializer
+from seekers.models import Resume
+from django.db import IntegrityError
 
-# --- Application Serializers ---
-
-class ApplicationReadSerializer(serializers.ModelSerializer):
-    """Serializer for reading application data with nested details."""
-    applicant = SeekerProfileReadSerializer(read_only=True)
-    resume = ResumeReadSerializer(read_only=True)
-    
-    class Meta:
-        model = Application
-        fields = ['id', 'job', 'applicant', 'resume', 'cover_letter', 'applied_at', 'status']
-
-class ApplicationWriteSerializer(serializers.ModelSerializer):
-    """Serializer for creating/updating an application."""
-    class Meta:
-        model = Application
-        fields = ['job', 'resume', 'cover_letter'] # Applicant is set from context
-
-    def create(self, validated_data):
-        # Automatically set the applicant from the request user's seeker profile.
-        seeker_profile = self.context['request'].user.seekerprofile
-        validated_data['applicant'] = seeker_profile
-        return super().create(validated_data)
-
-# --- Job Serializers ---
 
 class JobReadSerializer(serializers.ModelSerializer):
-    """Serializer for reading job data with nested company details."""
     company = CompanyReadSerializer(read_only=True)
 
     class Meta:
@@ -40,13 +17,82 @@ class JobReadSerializer(serializers.ModelSerializer):
         ]
 
 class JobWriteSerializer(serializers.ModelSerializer):
-    """Serializer for creating/updating a job."""
     class Meta:
         model = Job
-        exclude = ['company'] # Company is set from context
+        exclude = ['company']
 
     def create(self, validated_data):
-        # Automatically set the company from the request user's company profile.
         company_profile = self.context['request'].user.company
         validated_data['company'] = company_profile
         return super().create(validated_data) 
+
+class ApplicationReadSerializer(serializers.ModelSerializer):
+    job = JobReadSerializer(read_only=True)
+    applicant = SeekerProfileReadSerializer(read_only=True)
+    resume = ResumeReadSerializer(read_only=True)
+
+    resume_url = serializers.FileField(source='resume.resume', read_only=True)
+
+    class Meta:
+        model = Application
+        fields = [
+            'id',
+            'job',
+            'applicant',
+            'resume',
+            'resume_url',
+            'cover_letter',
+            'applied_at',
+            'status',
+        ]
+
+class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['status']
+
+class ApplicationWriteSerializer(serializers.ModelSerializer):
+
+    resume_id = serializers.IntegerField(write_only=True, required=False)
+
+    resume = serializers.FileField(write_only=True, required=False)
+    resume_title = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = Application
+        fields = ['job', 'cover_letter', 'resume_id', 'resume', 'resume_title']
+
+    def create(self, validated_data):
+        seeker_profile = self.context['request'].user.seekerprofile
+        
+        # --- Decide which resume to attach ---
+        if resume_id := validated_data.pop('resume_id', None):
+            # Using an existing resume
+            resume_obj = Resume.objects.filter(id=resume_id, seeker=seeker_profile).first()
+            if resume_obj is None:
+                raise serializers.ValidationError("Invalid resume_id or you do not own this resume.")
+        else:
+            # Expecting an uploaded file + title
+            uploaded_file = validated_data.pop('resume', None)
+            title = validated_data.pop('resume_title', None)
+            if not uploaded_file or not title:
+                raise serializers.ValidationError("Provide either resume_id or both resume and resume_title.")
+
+            resume_obj = Resume.objects.create(
+                seeker=seeker_profile,
+                resume_title=title,
+                resume=uploaded_file,
+            )
+
+        try:
+            application = Application.objects.create(
+                job=validated_data['job'],
+                applicant=seeker_profile,
+                cover_letter=validated_data.get('cover_letter', ''),
+                resume=resume_obj,
+            )
+        except IntegrityError:
+            raise serializers.ValidationError("You have already applied for this job.")
+
+        return application
+

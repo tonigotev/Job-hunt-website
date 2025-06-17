@@ -7,6 +7,18 @@ import { useUpdateCompanyStatusMutation } from "../../services/adminService";
 const CompanyProfile = () => {
    const location = useLocation();
    const { company } = location.state || {};
+
+   if (!company) {
+      return (
+         <div className="flex flex-col items-center mt-10">
+            <p className="text-gray-600">No company data provided.</p>
+            <p className="text-gray-500 text-sm mt-2">
+               Try navigating from the Companies list.
+            </p>
+         </div>
+      );
+   }
+
    const [approved, setApproved] = useState(company.is_active);
 
    const { mutate } = useUpdateCompanyStatusMutation();

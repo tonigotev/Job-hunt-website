@@ -78,7 +78,16 @@ const LoginForm = () => {
                         </div>
                      )}
 
-                     <div className="flex flex-col items-center justify-center">
+                     <div className="text-sm text-right">
+                        <Link
+                           to="/forgot-password"
+                           className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                           Forgot your password?
+                        </Link>
+                     </div>
+
+                     <div className="flex flex-col items-center justify-center pt-4">
                         <SubmitButton
                            isSubmitting={isSubmitting}
                            text="Login"

@@ -8,6 +8,15 @@ const axiosInstance = axios.create({
    },
 });
 
+// NEW: Attach the stored access token (if it exists) to every request by default
+// This ensures the user remains authenticated after a page refresh.
+const persistedAccessToken = localStorage.getItem("access_token");
+if (persistedAccessToken) {
+   axiosInstance.defaults.headers.common[
+      "Authorization"
+   ] = `Bearer ${persistedAccessToken}`;
+}
+
 const queryClient = new QueryClient();
 
 axiosInstance.interceptors.response.use(

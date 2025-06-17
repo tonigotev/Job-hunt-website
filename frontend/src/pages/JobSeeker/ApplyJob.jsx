@@ -1,99 +1,83 @@
 import React, { useState } from "react";
-import {
-   useCreateApplicationMutation,
-   useFetchResumesQuery,
-} from "../../services/seekerService";
+import { useCreateApplicationMutation, useFetchResumesQuery } from "../../services/seekerService";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import { useNavigate } from "react-router-dom";
 
 const ApplyJob = ({ setIsApplying, jobId }) => {
-   const [isResumeNull, setIsResumeNull] = useState(false);
-   const { data, isLoading } = useFetchResumesQuery();
-   const { mutate, isError, error } = useCreateApplicationMutation();
+   const { mutate } = useCreateApplicationMutation();
+   const { data: resumes = [] } = useFetchResumesQuery();
    const navigate = useNavigate();
+   const [errorMessage, setErrorMessage] = useState("");
 
    const handleSubmit = (values, { setSubmitting }) => {
-      setIsResumeNull(false);
-      if (!values.resume) {
-         setIsResumeNull(true);
-         setSubmitting(false);
-      } else {
-         mutate(
-            { ...values, job: jobId },
-            {
-               onSuccess: () => {
-                  setIsApplying(false);
-                  navigate("/");
-                  setSubmitting(false);
-               },
-               onError: () => {
-                  setSubmitting(false);
-               },
+      const payload = {
+         job: jobId,
+         cover_letter: values.cover_letter,
+         resume_id: values.resume_id,
+      };
+
+      mutate(payload, {
+         onSuccess: () => {
+            setIsApplying(false);
+            navigate("/");
+            setSubmitting(false);
+            setErrorMessage("");
+         },
+         onError: (error) => {
+            if (error.response?.data?.non_field_errors) {
+               setErrorMessage(error.response.data.non_field_errors[0]);
+            } else if (typeof error.response?.data === "string") {
+               setErrorMessage(error.response.data);
+            } else {
+               setErrorMessage("Unable to apply for job.");
             }
-         );
-      }
+            setSubmitting(false);
+         },
+      });
    };
 
    return (
       <Formik
-         initialValues={{ resume: "", cover_letter: "" }}
+         initialValues={{
+            resume_id: "",
+            cover_letter: "",
+         }}
          onSubmit={handleSubmit}
       >
          {({ isSubmitting }) => (
             <Form className="lg:w-3/5 xl:w-2/5 mx-auto bg-white rounded-lg shadow-lg p-6 relative">
-               {isError && (
-                  <p className="text-center mx-auto w-3/6 p-2 border border-red-300 mb-2 text-red-400">
-                     {error.response.data.detail}
+               {errorMessage && (
+                  <p className="text-center mx-auto w-3/5 p-2 border border-red-300 mb-4 text-red-500 text-sm">
+                     {errorMessage}
                   </p>
                )}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 items-start">
-                  {/* Resume Selection */}
-                  <div
-                     className={`border rounded-md ${
-                        isResumeNull ? "border-red-400" : "border-blue-200"
-                     } px-3`}
-                  >
-                     <p className="text-center font-bold text-gray-600 p-3">
-                        Select Resume
-                     </p>
-                     <hr />
-                     {isResumeNull && (
-                        <p className="text-sm text-center text-red-500">
-                           A resume must be selected.
-                        </p>
-                     )}
 
-                     {isLoading ? (
-                        <div className="bg-slate-50 p-3 my-3">Loading...</div>
-                     ) : (
-                        data?.map((resume) => (
-                           <div
-                              key={resume.id}
-                              className="flex items-center ps-3 bg-slate-50 hover:bg-slate-300 my-2 shadow-md hover:shadow-sm"
-                           >
-                              <Field
-                                 type="radio"
-                                 name="resume"
-                                 value={String(resume.id)}
-                                 id={`resume-list-${resume.id}`}
-                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 cursor-pointer"
-                                 onClick={() => setIsResumeNull(false)}
-                              />
-                              <label
-                                 htmlFor={`resume-list-${resume.id}`}
-                                 className="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-pointer"
-                              >
-                                 {resume.resume_title}
-                              </label>
-                           </div>
-                        ))
-                     )}
-                     <ErrorMessage
-                        name="resume"
-                        component="div"
-                        className="text-red-500 text-sm mt-1"
-                     />
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 items-start">
+                  <div>
+                     <div className="border rounded-md border-blue-200 px-3">
+                        <p className="text-center font-bold text-gray-600 p-3">
+                           Select Resume
+                        </p>
+                        <hr />
+                        <Field
+                           as="select"
+                           name="resume_id"
+                           className="w-full my-2 text-sm p-2.5 text-gray-800 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                           <option value="">-- Choose resume --</option>
+                           {resumes.map((res) => (
+                              <option key={res.id} value={res.id}>
+                                 {res.resume_title}
+                              </option>
+                           ))}
+                        </Field>
+                        <ErrorMessage
+                           name="resume_id"
+                           component="div"
+                           className="text-red-500 text-sm mt-1"
+                        />
+                     </div>
                   </div>
 
                   {/* Cover Letter */}

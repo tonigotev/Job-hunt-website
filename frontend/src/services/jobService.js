@@ -42,7 +42,7 @@ const fetchFilteredApplications = async ({jobId, status}) => {
 
 const updateApplication = async ({ applicationId, data }) => {
    const response = await axiosInstance.patch(
-      `jobs/applications/${applicationId}/`,
+      `jobs/applications/${applicationId}/update-status/`,
       data
    );
    return response.data;
@@ -115,8 +115,7 @@ const useUpdateApplicationMutation = (jobId, status) => {
    return useMutation({
       mutationFn: updateApplication,
       onSuccess: () => {
-         queryClient.invalidateQueries(["applications", jobId, status]);
-
+         queryClient.invalidateQueries({ queryKey: ["applications", jobId] });
       },
       onError: (err) => {
          console.error("Error:", err);

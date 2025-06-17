@@ -8,9 +8,14 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from .models import Job, Application, Company
-from .serializers import JobReadSerializer, JobWriteSerializer, ApplicationReadSerializer, ApplicationWriteSerializer
+from .serializers import (
+    JobReadSerializer, JobWriteSerializer, 
+    ApplicationReadSerializer, ApplicationWriteSerializer,
+    ApplicationStatusUpdateSerializer
+)
 from core.permissions import IsOwnerOrReadOnly
 from .permissions import IsAdminOrApplicationOwnerOrCompany
+from .filters import JobFilter
 
 class JobsListPagination(PageNumberPagination):
     page_size = 10
@@ -21,7 +26,7 @@ class JobViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
     search_fields = ['title', 'company__title', 'company__location']
-    filterset_fields = ['employment_type', 'company__location']
+    filterset_class = JobFilter
     ordering_fields = ['salary', 'date_posted']
     pagination_class = JobsListPagination
     
@@ -31,15 +36,12 @@ class JobViewSet(viewsets.ModelViewSet):
         return JobWriteSerializer
 
     def get_queryset(self):
-        # Public 'list' and 'retrieve' actions can see all jobs
         if self.action in ['list', 'retrieve']:
             return Job.objects.all().select_related('company__user')
         
-        # For actions requiring ownership, filter by the user's company
         if self.request.user.role == 'company':
             return Job.objects.filter(company__user=self.request.user)
         
-        # Admins can see everything for ownership-based actions
         if self.request.user.role == 'admin':
             return Job.objects.all()
 
@@ -59,11 +61,13 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdminOrApplicationOwnerOrCompany]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['job', 'status'] # Now you can filter by /api/jobs/applications/?job=1
+    filterset_fields = ['job', 'status']
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return ApplicationReadSerializer
+        if self.action == 'update_status':
+            return ApplicationStatusUpdateSerializer
         return ApplicationWriteSerializer
 
     def get_queryset(self):
@@ -73,3 +77,17 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         elif user.role == 'job_seeker':
             return Application.objects.filter(applicant__user=user)
         return Application.objects.all() # For admins
+
+    @action(detail=True, methods=['patch'], url_path='update-status', permission_classes=[permissions.IsAuthenticated])
+    def update_status(self, request, pk=None):
+        application = self.get_object()
+        
+        if request.user != application.job.company.user:
+            return Response({'detail': 'You do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.get_serializer(application, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        read_serializer = ApplicationReadSerializer(application)
+        return Response(read_serializer.data)
